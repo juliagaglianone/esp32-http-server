@@ -2,10 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-dados_esp32 = {
-    "temperatura": None,
-    "botao": None
-}
+estado_botao = None
 
 @app.route("/", methods=["GET"])
 def inicio():
@@ -13,24 +10,21 @@ def inicio():
 
 @app.route("/update", methods=["GET"])
 def update():
-    temperatura = request.args.get("temp")
-    botao = request.args.get("button")
+    global estado_botao
 
-    dados_esp32["temperatura"] = temperatura
-    dados_esp32["botao"] = botao
+    estado_botao = request.args.get("button")
 
-    print(f"Temperatura recebida: {temperatura} °C")
-    print(f"Estado do botão recebido: {botao}")
+    print(f"Estado do botão recebido: {estado_botao}")
 
     return jsonify({
-        "status": "ok",
-        "temperatura": temperatura,
-        "botao": botao
+        "botao": estado_botao
     })
 
 @app.route("/data", methods=["GET"])
 def data():
-    return jsonify(dados_esp32)
+    return jsonify({
+        "botao": estado_botao
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
